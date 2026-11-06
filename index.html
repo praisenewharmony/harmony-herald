@@ -807,6 +807,9 @@ body{background:#7A4236}
 .r-tool:hover{border-color:var(--r-fg)}
 .r-tool:disabled{opacity:.35;cursor:default}
 .r-tool.wide span{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase}
+.r-tool[hidden]{display:none}
+a.r-tool{text-decoration:none}
+.tp-acts .orig{text-decoration:none}
 .r-zoom{min-width:40px;text-align:center;font:400 10.5px/1 var(--f-mono);letter-spacing:.1em;color:var(--r-muted)}
 .mag.zoomed{overflow:auto;touch-action:auto}
 .reader.loading .mag::after{content:"Opening edition…";position:absolute;inset:0;display:grid;place-items:center;font:500 11px/1 var(--f-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--r-muted);background:var(--r-bg)}
@@ -934,6 +937,7 @@ body{background:#7A4236}
       <span class="r-zoom" id="rZoom" aria-live="polite">100%</span>
       <button class="r-tool" id="rZoomIn" type="button" aria-label="Zoom in" title="Zoom in (+)">+</button>
       <button class="r-tool" id="rFull" type="button" aria-label="Full screen" title="Full screen (F)"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+      <a class="r-tool wide" id="rOrig" href="#" target="_blank" rel="noopener" title="Open the original email in a new tab" hidden><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 3H3v10h10v-3M9 3h4v4M13 3L7 9" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Original</span></a>
       <button class="r-tool wide" id="rPrint" type="button" title="Save this edition as a PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 2v8M5 7l3 3 3-3M3 12v2h10v-2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span>Save PDF</span></button>
     </div>
     <div class="r-prog"><i id="r-prog"></i></div>
@@ -1320,6 +1324,7 @@ body{background:#7A4236}
   const TED = {url:'https://vimeo.com/showcase/11161837?video=1233352635', label:'Watch the Ted Danson segment'};
   ED[5].watch = TED; ED[6].watch = TED;
   ED[7].watch = {url:'https://vimeo.com/1238599014#t=19m37s', label:'Watch Discoveries Today'};
+  ED[7].orig = 'https://nhbhdiscoveriestoday.netlify.app/';
   const T = ED.length;
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
   const pvars = e => `--p-bg:${e.bg};--p-fg:${e.fg};--p-ac:${e.ac};--p-muted:${e.muted};--p-rule:${e.rule};--p-display:${e.display};--p-text:${e.text};--p-dw:${e.dw};--p-case:${e.upper?'uppercase':'none'};--p-tz:${e.tz||1}`;
@@ -1342,7 +1347,7 @@ body{background:#7A4236}
       <h2 class="tp-title" data-r style="--d:1">${esc(e.title)}</h2>
       <p class="tp-blurb" data-r style="--d:2">${esc(e.blurb)}</p>
       <dl class="tp-facts" data-r style="--d:3">${e.facts.map(f=>`<div><dt>${esc(f[0])}</dt><dd>${esc(f[1])}</dd></div>`).join('')}</dl>
-      <div class="tp-acts" data-r style="--d:4">${e.watch ? `<a class="watch" href="${e.watch.url}" target="_blank" rel="noopener">▶ ${esc(e.watch.label)}</a>` : ''}<button class="read" type="button" data-read="${k}">Read the full edition <span>→</span></button><button class="back" type="button" data-putback>Put it back</button></div>
+      <div class="tp-acts" data-r style="--d:4">${e.watch ? `<a class="watch" href="${e.watch.url}" target="_blank" rel="noopener">▶ ${esc(e.watch.label)}</a>` : ''}<button class="read" type="button" data-read="${k}">Read the full edition <span>→</span></button>${e.orig ? `<a class="back orig" href="${e.orig}" target="_blank" rel="noopener">View original email ↗</a>` : ''}<button class="back" type="button" data-putback>Put it back</button></div>
       <div class="folio"><span>The Harmony Herald</span><span>Newark, N.J.</span></div></div>`;
   }
 
@@ -1687,6 +1692,7 @@ body{background:#7A4236}
     const v = {bg:e.bg, fg:e.fg, ac:e.ac, muted:e.muted, rule:e.rule, display:e.display, text:e.text, dw:e.dw, case:e.upper?'uppercase':'none', tz:e.tz||1};
     for (const key in v) reader.style.setProperty('--r-'+key, v[key]);
     rMeta.textContent = `Edition ${k} of ${T} · ${e.date}`;
+    const ro = $('#rOrig'); if (e.orig){ ro.href = e.orig; ro.hidden = false; } else ro.hidden = true;
   }
   function loadEdition(k){ readerEd = k; setReaderVars(k); reader.classList.add('loading'); requestAnimationFrame(()=>{ build(k, 0); reader.classList.remove('loading'); }); setHash('edition-'+k); }
   // Zoom, full screen and print
